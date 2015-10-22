@@ -1,0 +1,8 @@
+{
+	"Db_host": "localhost",
+	"Db_port": "5432",
+	"Db_name": "db_name",
+	"Db_user": "username",
+	"Db_pass": "pa$$w0rd",
+	"This_url": "127.0.0.1:8080"
+}
