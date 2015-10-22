@@ -84,7 +84,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		// Case for the root
 		case "/":
-			p := &Page{Title: "shrtn: the link un-longerer", Body: ""}
+			p := &Page{Title: "t-short: the link un-longerer", Body: ""}
 			t, err := template.ParseFiles("index.html")
 			if err != nil {
 				fmt.Println(err)
