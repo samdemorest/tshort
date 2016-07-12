@@ -26,7 +26,6 @@ type Config struct {
 	Db_user     string
 	Db_pass     string
 	Listen_port string
-	//This_url    string
 }
 
 /*
