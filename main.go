@@ -26,7 +26,7 @@ type Config struct {
 	Db_user     string
 	Db_pass     string
 	Listen_port string
-	This_url    string
+	//This_url    string
 }
 
 /*
@@ -118,7 +118,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		id := create_link(url, ip, db)
 
 		// Join strings together to form a complete URL
-		s := []string{conf.This_url, "/", id}
+		s := []string{"http", r.Host, "/", id}
 		link := strings.Join(s, "")
 
 		// If posted from web form
