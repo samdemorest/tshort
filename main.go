@@ -26,6 +26,7 @@ type Config struct {
 	Db_user     string
 	Db_pass     string
 	Listen_port string
+	Hash_len    int
 }
 
 /*
@@ -114,10 +115,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create an ID based on the hash of the URL
-		id := create_link(url, ip, db)
+		id := create_link(url, ip, conf.Hash_len, db)
 
 		// Join strings together to form a complete URL
-		s := []string{"http", r.Host, "/", id}
+		s := []string{"http://", r.Host, "/", id}
 		link := strings.Join(s, "")
 
 		// If posted from web form
@@ -151,11 +152,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
  * This function insets a link into the database, generating a stort string by
  * which the URL will be looked up in the future.
  */
-func create_link(full_url string, ipaddr string, db *sql.DB) string {
+func create_link(full_url string, ipaddr string, leng int, db *sql.DB) string {
 	var link string
 
 	// Default length of a link. Incremented in case of collission.
-	var default_len int = 5
+	var hash_len int = leng
 
 	// Initialize and get the shasum of the URL as passed to the function
 	hash := sha256.New()
@@ -163,7 +164,7 @@ func create_link(full_url string, ipaddr string, db *sql.DB) string {
 	shasum := base64.URLEncoding.EncodeToString(hash.Sum(nil))
 
 	// Shorten the shasum to a manageable length
-	shortsum := string(shasum[0:default_len])
+	shortsum := string(shasum[0:hash_len])
 	//fmt.Println("About to make query")
 	if url_exists(full_url, db) {
 		link = query_id_by_url(full_url, db)
@@ -171,8 +172,8 @@ func create_link(full_url string, ipaddr string, db *sql.DB) string {
 		// Make sure the truncated hash doesn't collide
 		for !check_uniqueness(shortsum, full_url, db) {
 			// truncated shasum collided.
-			default_len += 1
-			shortsum = string(shasum[0:default_len])
+			hash_len += 1
+			shortsum = string(shasum[0:hash_len])
 		}
 		// Is unique
 		fmt.Println("Inserting")
