@@ -45,9 +45,16 @@ type API_response struct {
 }
 
 /*
+ * Constant for the configuration
+ */
+var conf *Config
+
+/*
  * Kicks off the program, just serves HTTP.
  */
 func main() {
+	// Get and read configuration from json file.
+	conf = read_config("config.json")
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":8080", nil)
 
@@ -57,9 +64,6 @@ func main() {
  * This function handles incoming http requests.
  */
 func handler(w http.ResponseWriter, r *http.Request) {
-
-	// Get and read configuration from json file.
-	conf := read_config("config.json")
 
 	// Prepare to open database
 	db_string := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
@@ -115,7 +119,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create an ID based on the hash of the URL
-		id := create_link(url, ip, conf.Hash_len, db)
+		id := create_link(url, ip, db)
 
 		// Join strings together to form a complete URL
 		s := []string{"http://", r.Host, "/", id}
@@ -152,11 +156,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
  * This function insets a link into the database, generating a stort string by
  * which the URL will be looked up in the future.
  */
-func create_link(full_url string, ipaddr string, leng int, db *sql.DB) string {
+func create_link(full_url string, ipaddr string, db *sql.DB) string {
 	var link string
 
 	// Default length of a link. Incremented in case of collission.
-	var hash_len int = leng
+	var hash_len int = conf.Hash_len
 
 	// Initialize and get the shasum of the URL as passed to the function
 	hash := sha256.New()
